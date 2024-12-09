@@ -1,0 +1,71 @@
+﻿@using ShopWebApp
+@{
+    Layout = "_Layout";
+}
+<br />
+<h2 style="text-align:center" class="display-4">Your Account</h2>
+<br />
+<table class="table">
+    <tbody>
+        <tr>
+            <th scope="row">First Name</th>
+            <td>@Model.User.Name</td>
+        </tr>
+        <tr>
+            <th scope="row">Last Name</th>
+            <td>@Model.User.Surname</td>
+        </tr>
+        <tr>
+            <th scope="row">Email Address</th>
+            <td>@Model.User.Email</td>
+        </tr>
+        <tr>
+            <th scope="row">Phone Number</th>
+            <td>@Model.User.Phone</td>
+        </tr>
+        <tr>
+            <th scope="row">Home Address</th>
+            <td>@Model.User.Address</td>
+        </tr>
+    </tbody>
+</table>
+<a href="@Url.Action("edit", "account")" class="btn btn-outline-primary btn-lg btn-block">Edit Account Information</a>
+@if (ViewBag.orders.Count > 0)
+{
+    <script>
+        function goToOrder(code) {
+            window.location.href = '/order/' + code;
+        }
+    </script>
+    <table class="table">
+    <thead>
+        <tr>
+            <th scope="col">Order Code</th>
+            <th scope="col">Status</th>
+            <th scope="col">Amount</th>
+            <th scope="col">Number of Products</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (Order order in ViewBag.orders)
+        {
+            int productsCount = 0;
+            foreach (ProductOrder po in order.ProductOrders)
+                productsCount += po.Count;
+        <tr class="pointer" onclick="goToOrder(@order.Code)">
+            <th>@order.Code</th>
+            <td>@Functions.Status(order.Status)</td>
+            <td>@((order.Amount/100).ToString("C")) - @if (order.Paid)
+            {
+                @:Paid
+            }
+            else
+            {
+                @:Unpaid
+            }</td>
+            <td>@productsCount</td>
+        </tr>
+        }
+    </tbody>
+    </table>
+}

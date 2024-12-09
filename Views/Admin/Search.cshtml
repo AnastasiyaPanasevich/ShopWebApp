@@ -1,0 +1,75 @@
+﻿@using ShopWebApp
+@{
+    Layout = "_AdminLayout";
+}
+<div class="row">
+    <div class="col-md-4">
+        <h5>Products</h5>
+        <table class="table">
+            <tbody>
+                @foreach (KeyValuePair<string, string> kvp in ViewBag.products)
+
+                {
+                    <tr>
+                        <td>
+                            <a href="@kvp.Value">@kvp.Key</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="col-md-5">
+        <h5>Users</h5>
+        <table class="table">
+            <tbody>
+                @foreach (KeyValuePair<string, string> kvp in ViewBag.users)
+
+                {
+                    <tr>
+                        <td>
+                            <a href="@kvp.Value">@kvp.Key</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="col-md-3">
+        <h5>Orders</h5>
+        <table class="table">
+            <tbody>
+                @foreach (KeyValuePair<string, string> kvp in ViewBag.orders)
+
+                {
+                    <tr>
+                        <td>
+                            <a href="@kvp.Value">@kvp.Key</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+@{
+    int prev = ViewBag.page - 1, next = ViewBag.page + 1;
+
+    if (ViewBag.page >= 1)
+
+    {
+
+        if (ViewBag.page > 1)
+
+        {
+            @:<a class="float-left text-dark" href="?name=@ViewData["name"]&page=@prev"><i class="bi-arrow-left"></i> Previous</a>
+        }
+
+        if (ViewBag.page < ViewBag.lastPage)
+
+        {
+            @:<a class="float-right text-dark" href="?name=@ViewData["name"]&page=@next">Next <i class="bi-arrow-right"></i></a>
+        }
+
+    }
+}
