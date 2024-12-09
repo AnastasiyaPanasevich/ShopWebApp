@@ -56,6 +56,7 @@
         </div>
         <div class="col-sm-8">
             <a href="@Url.Action("index", "order")" class="btn btn-success btn-block btn-lg margin-mobile" @if (ViewBag.Cart.Count <= 0)
+
             {
                 @: disabled
             }>
@@ -63,5 +64,4 @@
             </a>
         </div>
     </div>
-
 }

@@ -2,24 +2,90 @@
     scroll-behavior: smooth;
 }
 
-.card:hover {
-    box-shadow: 0 0 1em gray;
-    transform: scale(1.05);
-}
-.btn:hover {
-    box-shadow: 0 0 0.5em gray;
-    transform: scale(1.02);
-}
-.card {
-    transition: .3s transform cubic-bezier(.155,1.105,.295,1.12),.3s box-shadow,.3s -webkit-transform cubic-bezier(.155,1.105,.295,1.12);
-}
-.btn {
-    transition: .3s transform cubic-bezier(.155,1.105,.295,1.12),.3s box-shadow,.3s -webkit-transform cubic-bezier(.155,1.105,.295,1.12);
+.navbar-custom {
+    background-color: #19026e; 
+    color: white; 
 }
 
-.nounderline{
-    text-decoration: none !important;
+    .navbar-custom .nav-link {
+        color: white;
+    }
+
+        .navbar-custom .nav-link:hover {
+            color: #D5C2A5; 
+        }
+
+    .navbar-custom .nav-item:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+
+
+.card:hover {
+    box-shadow: 0 0 1em #D5C2A5;
+    transform: scale(1.05);
 }
+
+.btn:hover {
+    box-shadow: 0 0 0.5em #D5C2A5; 
+    transform: scale(1.02);
+}
+
+.card {
+    transition: .3s transform cubic-bezier(.155,1.105,.295,1.12), .3s box-shadow, .3s -webkit-transform cubic-bezier(.155,1.105,.295,1.12);
+}
+
+.btn {
+    transition: .3s transform cubic-bezier(.155,1.105,.295,1.12), .3s box-shadow, .3s -webkit-transform cubic-bezier(.155,1.105,.295,1.12);
+    background-color: #19026e; 
+    color: white;
+    border: none;
+}
+
+.btn-danger {
+    background-color: #6e020c; 
+}
+
+.btn-success {
+    background-color: #f2c2ed;
+}
+
+.btn-outline-danger {
+    border-color: #6e020c; 
+    color: #6e020c; 
+}
+
+    .btn-outline-danger:hover {
+        background-color: #6e020c;
+        color: white;
+    }
+
+.modal-content {
+    border-radius: 10px;
+    border: none;
+}
+
+.modal-header {
+    background-color: #19026e; 
+    color: white;
+    border-bottom: 1px solid #D5C2A5;
+}
+
+.modal-body {
+    font-size: 16px;
+}
+
+.modal-footer {
+    border-top: 1px solid #D5C2A5;
+}
+
+    .modal-footer button {
+        transition: .3s background-color;
+    }
+
+        .modal-footer button:hover {
+            background-color: #FEFBEA;
+            color: #19026e; 
+        }
 
 .fadein {
     animation: fadeInAnimation ease 0.3s;
@@ -63,6 +129,7 @@ hr {
         visibility: visible;
     }
 }
+
 .pointer {
     cursor: pointer;
 }

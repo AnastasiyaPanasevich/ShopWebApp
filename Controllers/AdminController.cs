@@ -205,8 +205,8 @@ namespace ShopWebApp
                 model.Dict.Add("Name", product.Name);
                 model.Dict.Add("Brand", product.Brand);
                 model.Dict.Add("Code", product.Code);
-                model.Dict.Add("Price", (product.Price / 100.0).ToString() + " zł");
-                model.Dict.Add("Price Before Discount", (product.OldPrice / 100.0).ToString() + " zł");
+                model.Dict.Add("Price", (product.Price / 100.0).ToString() + " Br");
+                model.Dict.Add("Price Before Discount", (product.OldPrice / 100.0).ToString() + " Br");
                 model.Dict.Add("Available Quantity", product.Stock.ToString());
                 model.Dict.Add("Main Image", product.Photo);
                 model.Dict.Add("Additional Images", product.OtherPhotos);

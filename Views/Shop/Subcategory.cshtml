@@ -53,7 +53,7 @@
                 <div class="list-group-item">
                     <p class="font-weight-bold text-muted">Price</p>
                     <div class="row" style="margin-top: 10px; text-align: center">
-                        <div class="col-sm-2">From</div>
+                        <div class="col-sm-2">Ot</div>
                         <input type="number" class="form-control col-sm-8" name="pricefrom" asp-for="@ViewBag.filters["pricefrom"]" placeholder="From" value="@ViewBag.filters["pricefrom"]" step="0.01" />
                         <div class="col-sm-2">BYN</div>
                     </div>
@@ -193,7 +193,7 @@
                     @if (prod.Price < prod.OldPrice)
                     {
                         <div>
-                            <span style="color: orangered; text-decoration: line-through; text-decoration-color: darkred">@oldPrice zł</span><span class="ml-2" style="color: forestgreen">- @discount%</span>
+                            <span style="color: orangered; text-decoration: line-through; text-decoration-color: darkred">@oldPrice Br</span><span class="ml-2" style="color: forestgreen">- @discount%</span>
                         </div>
                     }
                     @if (prod.Stock != 0)
