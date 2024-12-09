@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <UserSecretsId>a2420e3a-7354-4f4a-be94-aaa596ec4776</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="DataAccess\**" />
+    <Content Remove="DataAccess\**" />
+    <EmbeddedResource Remove="DataAccess\**" />
+    <None Remove="DataAccess\**" />
+  </ItemGroup>
+
+<ItemGroup>
+  <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.6" />
+  <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.6" />
+  <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+</ItemGroup>
+
+<ItemGroup>
+  <ProjectReference Include="BuisnessLogic\BuisnessLogic.csproj" />
+  <ProjectReference Include="DataAccess\DataAccess.csproj" />
+</ItemGroup>
+
+
+</Project>
