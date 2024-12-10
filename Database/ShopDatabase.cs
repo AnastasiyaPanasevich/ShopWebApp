@@ -33,8 +33,8 @@ namespace ShopWebApp
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            //optionsBuilder.UseSqlite($"Data Source={DbPath}");
-            optionsBuilder.UseSqlServer($"workstation id=flower_shop.mssql.somee.com;packet size=4096;user id=ivankaivanova_SQLLogin_1;pwd=idz38baig7;data source=flower_shop.mssql.somee.com;persist security info=False;initial catalog=flower_shop;TrustServerCertificate=True");
+            optionsBuilder.UseSqlite($"Data Source={DbPath}");
+            //optionsBuilder.UseSqlServer($"workstation id=flower_shop.mssql.somee.com;packet size=4096;user id=ivankaivanova_SQLLogin_1;pwd=idz38baig7;data source=flower_shop.mssql.somee.com;persist security info=False;initial catalog=flower_shop;TrustServerCertificate=True");
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
