@@ -14,6 +14,8 @@ using System.Threading.Tasks;
 using BuisnessLogic.Services.Interfaces;
 using BuisnessLogic.Services.Implementations;
 using Microsoft.EntityFrameworkCore;
+using ShopWebApp.Services.Interfaces;
+using ShopWebApp.Services.Implementations;
 
 namespace ShopWebApp
 {
@@ -39,6 +41,10 @@ namespace ShopWebApp
 
             services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<ICategoryService, CategoryService>();
+            services.AddScoped<IFileService, FileService>();
+            services.AddScoped<IOrderService, OrderService>();
+            services.AddScoped<IProductService, ProductService>();
 
             services.AddAuthentication(options =>
             {

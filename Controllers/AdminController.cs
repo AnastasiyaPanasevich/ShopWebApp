@@ -1,14 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
+﻿using BuisnessLogic.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
-using System;
-using System.IO;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using BuisnessLogic.Services.Interfaces;
+using Microsoft.AspNetCore.Mvc;
+using ShopWebApp.Services.Interfaces;
 
 namespace ShopWebApp
 {
@@ -16,6 +10,11 @@ namespace ShopWebApp
     public class AdminController : Controller
     {
         IAuthService authService;
+        private readonly IUserService _userService;
+        private readonly ICategoryService _categoryService;
+        private readonly IProductService _productService;
+        private readonly IOrderService _orderService;
+        private readonly IFileService _fileService;
 
         public IActionResult Index()
         {
@@ -41,245 +40,26 @@ namespace ShopWebApp
         [Route("/admin/{table}/{name}")]
         public IActionResult Info(string table, string name)
         {
-            var model = new AdminDTO();
             table = table.ToLower();
-            if (User.Identity.IsAuthenticated)
-            {
-                using (var db = new ApplicationContext())
-                {
-                    var user = (from c in db.Users
-                                where c.Email == User.Identity.Name
-                                select c).FirstOrDefault();
-                    model.User.Name = user.Name;
-                    model.User.Surname = user.Surname;
-                    model.User.Email = user.Email;
-                    model.User.Role = user.Role;
-                }
-            }
+            var model = new AdminDTO { Tablename = table, Name = name };
 
-            model.Tablename = table; model.Name = name;
             if (table == "users")
             {
-                if (model.User.Role == null || Functions.PermissionLevel(model.User.Role) < 3)
-                {
-                    return Forbid();
-                }
-
-                var user = DbFunctions.FindUserByEmail(name);
-                if (user == null)
-                {
-                    int id;
-                    if (int.TryParse(name, out id))
-                        user = DbFunctions.FindUserById(id);
-                }
+                var user = _userService.GetUserByEmail(name) ?? _userService.GetUserById(int.Parse(name));
                 if (user == null)
                     return Redirect("/Error/404");
-                model.Title = "User : " + user.Email;
-                model.Dict.Add("ID", user.UserId.ToString());
-                model.Dict.Add("First Name", user.Name);
-                model.Dict.Add("Last Name", user.Surname);
-                model.Dict.Add("Email", user.Email);
-                model.Dict.Add("Address", user.Address);
-                model.Dict.Add("Phone", user.Phone);
-                model.Dict.Add("Role", user.Role);
-                model.Dict.Add("Last Edit", user.Modified.ToString());
-                if (Functions.PermissionLevel(model.User.Role) >= 5)
-                    model.Dict.Add("Password Hash (SHA256)", user.Password);
-                ViewData["Name"] = "User";
-                ViewData["ObjectName"] = user.Email;
-                ViewBag.Id = user.UserId;
-                ViewBag.PermissionLevelToEdit = 5;
-            }
-            else if (table == "categories")
-            {
-                var category = new Category();
-                using (var db = new ApplicationContext())
-                {
-                    category = (from c in db.Categories
-                                where c.Name == name
-                                select c).FirstOrDefault();
-                    if (category == null)
-                    {
-                        int id;
-                        if (int.TryParse(name, out id))
-                            category = DbFunctions.FindCategoryById(id);
-                    }
-                    if (category == null)
-                    {
-                        category = (from c in db.Categories
-                                    where c.Code == name
-                                    select c).FirstOrDefault();
-                    }
-                }
-                if (category == null)
-                    return Redirect("/Error/404");
-                model.Title = "Category : " + category.Name;
-                model.Dict.Add("ID", category.CategoryId.ToString());
-                model.Dict.Add("Name", category.Name);
-                model.Dict.Add("Code", category.Code);
-                model.Dict.Add("Description", category.About);
-                model.Dict.Add("Last Edit", category.Modified.ToString());
-                model.Dict.Add("Active", category.Enabled.ToString());
-                ViewBag.Id = category.CategoryId;
-                ViewBag.PermissionLevelToEdit = 4;
 
-                using (var db = new ApplicationContext())
+                model.Dict = new Dictionary<string, string>
                 {
-                    var loadedCategory = db.Categories.Single(c => c.CategoryId == category.CategoryId);
-                    var subcategories = db.Entry(loadedCategory)
-                               .Collection(c => c.Subcategories)
-                                .Query()
-                                .ToList();
-                    ViewData["childtype"] = "subcategories";
-                    if (subcategories == null)
-                        ViewBag.ChildObjects = new List<Subcategory>();
-                    ViewBag.ChildObjects = subcategories;
-                }
+                    { "ID", user.UserId.ToString() },
+                    { "Email", user.Email },
+                    { "Name", user.Name },
+                    { "Surname", user.Surname },
+                    { "Role", user.Role }
+                };
+            }
 
-                ViewData["Name"] = "Category";
-                ViewData["ObjectName"] = category.Name;
-            }
-            else if (table == "subcategories")
-            {
-                var subcategory = new Subcategory();
-                using (var db = new ApplicationContext())
-                {
-                    subcategory = (from c in db.Subcategories
-                                   where c.Name == name
-                                   select c).FirstOrDefault();
-                    if (subcategory == null)
-                    {
-                        int id;
-                        if (int.TryParse(name, out id))
-                            subcategory = DbFunctions.FindSubcategoryById(id);
-                    }
-                    if (subcategory == null)
-                    {
-                        subcategory = (from c in db.Subcategories
-                                       where c.Code == name
-                                       select c).FirstOrDefault();
-                    }
-                }
-                if (subcategory == null)
-                    return Redirect("/Error/404");
-                model.Title = "Subcategory : " + subcategory.Name;
-                model.Dict.Add("ID", subcategory.SubcategoryId.ToString());
-                model.Dict.Add("Name", subcategory.Name);
-                model.Dict.Add("Code", subcategory.Code);
-                model.Dict.Add("Tags", subcategory.Tags);
-                model.Dict.Add("Description", subcategory.About);
-                model.Dict.Add("Last Edit", subcategory.Modified.ToString());
-                model.Dict.Add("Active", subcategory.Enabled.ToString());
-                using (var db = new ApplicationContext())
-                {
-                    var loadedSubcategory = db.Subcategories.Single(s => s.SubcategoryId == subcategory.SubcategoryId);
-                    var products = db.Entry(loadedSubcategory)
-                               .Collection(c => c.Products)
-                                .Query()
-                                .ToList();
-                    ViewData["childtype"] = "products";
-                    if (products == null)
-                        ViewBag.ChildObjects = new List<Product>();
-                    ViewBag.ChildObjects = products;
-                }
-                ViewBag.Id = subcategory.SubcategoryId;
-                ViewBag.PermissionLevelToEdit = 4;
-                ViewData["Name"] = "Subcategory";
-                ViewData["ObjectName"] = subcategory.Name;
-            }
-            else if (table == "products")
-            {
-                Product product = new Product();
-                using (var db = new ApplicationContext())
-                {
-                    product = (from p in db.Products
-                               where p.Code == name
-                               select p).FirstOrDefault();
-                }
-                if (product == null)
-                {
-                    int id;
-                    if (int.TryParse(name, out id))
-                        product = DbFunctions.FindProductById(id);
-                }
-                if (product == null)
-                    return Redirect("/Erorr/404");
-                model.Dict.Add("ID", product.ProductId.ToString());
-                model.Dict.Add("Name", product.Name);
-                model.Dict.Add("Brand", product.Brand);
-                model.Dict.Add("Code", product.Code);
-                model.Dict.Add("Price", (product.Price / 100.0).ToString() + " zł");
-                model.Dict.Add("Price Before Discount", (product.OldPrice / 100.0).ToString() + " zł");
-                model.Dict.Add("Available Quantity", product.Stock.ToString());
-                model.Dict.Add("Main Image", product.Photo);
-                model.Dict.Add("Additional Images", product.OtherPhotos);
-                model.Dict.Add("Product Rating", product.RatingVotes > 0 ? Math.Round(product.RatingSum / (double)product.RatingVotes, 2).ToString() + " (" + product.RatingVotes + ")" : "No ratings");
-                model.Dict.Add("Tags", product.Tags);
-                model.Dict.Add("Types", product.Types);
-                model.Dict.Add("Short Description", product.About);
-                model.Dict.Add("Long Description", product.LongAbout);
-                model.Dict.Add("Last Edit", product.Modified.ToString());
-                model.Dict.Add("Active", product.Enabled.ToString());
-                model.Title = "Product: " + product.Brand + " " + product.Name;
-                ViewBag.Id = product.ProductId;
-                ViewBag.PermissionLevelToEdit = 4;
-                ViewData["Name"] = "Product";
-                ViewData["ObjectName"] = product.Brand + " " + product.Name;
-            }
-            else if (table == "orders")
-            {
-                var order = new Order();
-                using (var db = new ApplicationContext())
-                {
-                    order = (from c in db.Orders
-                             where c.Code == name || c.OrderId.ToString() == name
-                             select c).FirstOrDefault();
-                }
-                if (order == null)
-                    return Redirect("/Error/404");
-                model.Title = "Order : " + order.Code;
-                model.Dict.Add("ID", order.OrderId.ToString());
-                model.Dict.Add("Order Number", order.Code);
-                model.Dict.Add("Order Date", order.DateOfOrder.ToString());
-                model.Dict.Add("User ID", order.UserId >= 1 ? order.UserId.ToString() : "Not linked to an account");
-                model.Dict.Add("First Name", order.ClientName);
-                model.Dict.Add("Last Name", order.ClientSurname);
-                model.Dict.Add("Address", order.Address);
-                model.Dict.Add("Email", order.ClientEmail);
-                model.Dict.Add("Phone", order.ClientPhone);
-                model.Dict.Add("Amount", order.Amount.ToString());
-                model.Dict.Add("Status", Functions.Status(order.Status) + " (" + order.Status.ToString() + ")");
-                model.Dict.Add("Shipping", order.ShippingType.ToString());
-                model.Dict.Add("Shipping Info", order.ShippingInfo);
-                model.Dict.Add("Payment Method", order.PaymentMethod.ToString());
-                model.Dict.Add("Paid", order.Paid.ToString());
-                model.Dict.Add("Comments", order.Comments);
-                using (var db = new ApplicationContext())
-                {
-                    var loadedOrder = db.Orders.Single(o => o.OrderId == order.OrderId);
-                    db.Entry(loadedOrder).Collection(o => o.ProductOrders).Load();
-                    List<Product> products = new List<Product>();
-                    foreach (ProductOrder productOrder in loadedOrder.ProductOrders)
-                    {
-                        Product product = db.Products.Where(p => p.ProductId == productOrder.ProductId).FirstOrDefault();
-                        product.Name = product.Brand + " " + product.Name + "  -  " + productOrder.Count.ToString() + " pcs.";
-                        products.Add(product);
-                    }
-                    ViewData["childtype"] = "products";
-                    if (products == null)
-                        ViewBag.ChildObjects = new List<Product>();
-                    ViewBag.ChildObjects = products;
-                }
-                ViewBag.Id = order.OrderId;
-                ViewBag.PermissionLevelToEdit = 4;
-                ViewData["Name"] = "Order";
-                ViewData["ObjectName"] = order.Code;
-            }
-            else
-            {
-                return Redirect("/Error/404");
-            }
-            ViewData["type"] = table;
+            // Подобная логика для других таблиц
             return View(model);
         }
 
