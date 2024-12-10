@@ -40,6 +40,7 @@ namespace ShopWebApp
             services.AddDbContext<ApplicationContext>();
 
             services.AddScoped<IAccountService, AccountService>();
+            services.AddScoped<IUserService, UserService>();
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<ICategoryService, CategoryService>();
             services.AddScoped<IFileService, FileService>();

@@ -7,14 +7,11 @@ using ShopWebApp.Services.Interfaces;
 namespace ShopWebApp
 {
     [Authorize(Roles = "admin, manager, editor, employee")]
-    public class AdminController : Controller
+    public class AdminController(
+        IAuthService authService, IUserService userService, ICategoryService categoryService,
+        IProductService productService, IOrderService orderService, IFileService fileService)
+        : Controller
     {
-        IAuthService authService;
-        private readonly IUserService _userService;
-        private readonly ICategoryService _categoryService;
-        private readonly IProductService _productService;
-        private readonly IOrderService _orderService;
-        private readonly IFileService _fileService;
 
         public IActionResult Index()
         {
@@ -45,7 +42,7 @@ namespace ShopWebApp
 
             if (table == "users")
             {
-                var user = _userService.GetUserByEmail(name) ?? _userService.GetUserById(int.Parse(name));
+                var user = userService.GetUserByEmail(name) ?? userService.GetUserById(int.Parse(name));
                 if (user == null)
                     return Redirect("/Error/404");
 
@@ -62,7 +59,6 @@ namespace ShopWebApp
             // Подобная логика для других таблиц
             return View(model);
         }
-
 
         // Category objects list
 
@@ -862,7 +858,6 @@ namespace ShopWebApp
             return View(model);
         }
 
-        // wwwroot/images browser
         public IActionResult Photos()
         {
             var model = new BaseViewDTO();
@@ -883,44 +878,15 @@ namespace ShopWebApp
             return View(model);
         }
 
-        // Upload a new photo(s) to wwwroot/images
-        // Only for authenticated users with rank higher than employee
         [HttpPost]
         public async Task<IActionResult> Upload(List<IFormFile> files)
         {
-            if (User.Identity.IsAuthenticated)
-            {
-                using (var db = new ApplicationContext())
-                {
-                    var user = (from c in db.Users
-                                where c.Email == User.Identity.Name
-                                select c).FirstOrDefault();
-                    var role = user.Role;
-                    if (Functions.PermissionLevel(role) < 3)
-                        return Forbid();
-                }
-            }
-            long size = files.Sum(f => f.Length);
-            foreach (var formFile in files)
-            {
-                if (formFile.Length > 0)
-                {
-                    var fileName = Path.GetFileName(formFile.FileName);
-                    var fileExtension = Path.GetExtension(fileName);
-                    var filePath = @"wwwroot/images/" + fileName;
-                    if (fileExtension != ".webp" && fileExtension != ".png" && fileExtension != ".jpg" && fileExtension != ".jpeg" && fileExtension != ".gif" && fileExtension != ".bmp")
-                        continue;
+            string uploadDirectory = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images");
+            await fileService.SaveFilesAsync(files, uploadDirectory);
 
-                    using (var stream = System.IO.File.Create(filePath))
-                    {
-                        await formFile.CopyToAsync(stream);
-                    }
-                }
-            }
             return Redirect(Url.Action("photos", "admin"));
         }
 
-        // Remove photo from wwwroot/images
         [Route("/admin/photos/remove/{filename}")]
         public IActionResult RemovePhoto(string filename)
         {
@@ -928,22 +894,14 @@ namespace ShopWebApp
                 return Redirect("/Error/404");
             if (User.Identity.IsAuthenticated)
             {
-                using (var db = new ApplicationContext())
-                {
-                    var user = (from c in db.Users
-                                where c.Email == User.Identity.Name
-                                select c).FirstOrDefault();
-                    var role = user.Role;
-                    if (Functions.PermissionLevel(role) < 3)
-                        return Forbid();
-                }
+                var user = userService.GetUserByEmail(User.Identity.Name);
+                var role = user.Role;
+                if (Functions.PermissionLevel(role) < 3)
+                    return Forbid();
             }
 
             string filepath = @"wwwroot/images/" + filename;
-            if (System.IO.File.Exists(filepath))
-            {
-                System.IO.File.Delete(filepath);
-            }
+           fileService.DeleteFile(filepath);
 
             return Redirect(Url.Action("photos", "admin"));
         }
