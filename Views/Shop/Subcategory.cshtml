@@ -53,14 +53,14 @@
                 <div class="list-group-item">
                     <p class="font-weight-bold text-muted">Price</p>
                     <div class="row" style="margin-top: 10px; text-align: center">
-                        <div class="col-sm-2">Ot</div>
+                        <div class="col-sm-2"></div>
                         <input type="number" class="form-control col-sm-8" name="pricefrom" asp-for="@ViewBag.filters["pricefrom"]" placeholder="From" value="@ViewBag.filters["pricefrom"]" step="0.01" />
-                        <div class="col-sm-2">BYN</div>
+                        <div class="col-sm-2">Br</div>
                     </div>
                     <div class="row" style="margin-top: 10px; text-align: center">
-                        <div class="col-sm-2">To</div>
+                        <div class="col-sm-2"></div>
                         <input type="number" class="form-control col-sm-8" name="priceto" asp-for="@ViewBag.filters["priceto"]" placeholder="To" value="@ViewBag.filters["priceto"]" step="0.01" />
-                        <div class="col-sm-2">BYN</div>
+                        <div class="col-sm-2">Br</div>
                     </div>
                 </div>
                 @foreach (KeyValuePair<string, string> tag in tags)
