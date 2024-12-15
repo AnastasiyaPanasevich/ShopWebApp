@@ -835,7 +835,7 @@ namespace ShopWebApp
             }
             else
                 return Redirect("/Error/404");
-            return Redirect("/admin/" + table + "/" + objectName);
+            return Redirect("/admin/table/" + table);
         }
 
         [HttpGet]

@@ -151,6 +151,9 @@ namespace ShopWebApp.Controllers
                 Dictionary<string, bool> isStringFiltered = new Dictionary<string, bool>();
                 foreach (Product product in productList)
                 {
+                    if (product.Tags == null)
+                        continue;
+
                     string[] productsTagStrings = product.Tags.Split(';');
                     Dictionary<string, string> oneProductTags = new Dictionary<string, string>();
                     foreach (string tagString in productsTagStrings)

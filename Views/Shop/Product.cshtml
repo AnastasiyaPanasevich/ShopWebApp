@@ -28,13 +28,7 @@
 
         stars = halfStars / 2;
 
-        if (halfStars % 2 == 1)
-
-            halfStars = 1;
-
-        else
-
-            halfStars = 0;
+        halfStars %= 2;
 
     }
 
@@ -132,11 +126,6 @@
 
 
         }
-        <ul class="list-group" style="margin-top: 30px">
-            <li class="list-group-item btn btn-light btn-block" onclick="window.location.hash = '#about'">About the product</li>
-            <li class="list-group-item btn btn-light btn-block" onclick="window.location.hash = '#rating'">Rate</li>
-            <li class="list-group-item btn btn-light btn-block" onclick="window.location.hash = '#specs'">Specification</li>
-        </ul>
     </div>
 }
 <style>
