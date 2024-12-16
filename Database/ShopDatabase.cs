@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.InMemory;
+
 
 namespace ShopWebApp
 {
@@ -20,7 +22,10 @@ namespace ShopWebApp
         public DbSet<ProductOrder> ProductOrders { get; set; }
 
         public string DbPath { get; set; }
-
+        // Constructor for unit testing (accepts DbContextOptions<ShopDatabase>)
+        public ShopDatabase(DbContextOptions<ShopDatabase> options) : base(options)
+        {
+        }
         public ShopDatabase()
         {
             var localPath = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "data");
@@ -30,11 +35,24 @@ namespace ShopWebApp
             }
             DbPath = Path.Join(localPath, "shop.db");
         }
-
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlite($"Data Source={DbPath}");
+            // Check if we're in a test environment and use InMemoryDatabase
+            if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Testing")
+            {
+                optionsBuilder.UseInMemoryDatabase("TestDb");
+            }
+            else
+            {
+                // Default to SQLite in production
+                optionsBuilder.UseSqlite($"Data Source={DbPath}");
+            }
         }
+
+        //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        //{
+        //    optionsBuilder.UseSqlite($"Data Source={DbPath}");
+        //}
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<ProductOrder>()

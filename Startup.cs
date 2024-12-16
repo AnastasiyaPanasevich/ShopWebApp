@@ -69,6 +69,7 @@ namespace ShopWebApp
             db.Database.EnsureCreated();
 
             app.UseStatusCodePagesWithRedirects("/Error/{0}");
+            app.UseStatusCodePagesWithReExecute("/Error/{0}");
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();

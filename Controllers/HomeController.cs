@@ -16,65 +16,88 @@ namespace ShopWebApp
             {
                 if (User.Identity.IsAuthenticated)
                 {
-                    var user = (from c in db.Users
-                                where c.Email == User.Identity.Name
-                                select c).FirstOrDefault();
-                    model.User.Name = user.Name;
-                    model.User.Surname = user.Surname;
-                    model.User.Email = user.Email;
-                }
-                if (db.Products.Where(p => p.Enabled && p.Stock != 0).Count() > 0)
-                {
-                    int maxId = db.Products.Max(p => p.ProductId), id;
-                    Random random = new Random();
-                    do
+                    var user = db.Users.FirstOrDefault(c => c.Email == User.Identity.Name);
+                    if (user != null)
                     {
-                        id = random.Next(maxId + 1);
+                        model.User.Name = user.Name;
+                        model.User.Surname = user.Surname;
+                        model.User.Email = user.Email;
                     }
-                    while (db.Products.Where(p => p.ProductId == id && p.Enabled && p.Stock != 0).Count() == 0);
-                    ViewBag.product = db.Products.Where(p => p.ProductId == id).FirstOrDefault();
+                }
+
+                var products = db.Products.Where(p => p.Enabled && p.Stock > 0).ToList();
+                if (products.Any())
+                {
+                    var random = new Random();
+                    var randomProduct = products[random.Next(products.Count)];
+                    ViewBag.product = randomProduct;
                     ViewBag.productExists = true;
                 }
                 else
                 {
                     ViewBag.productExists = false;
                 }
-                Dictionary<string, string> Categories = new Dictionary<string, string>();
-                foreach(Category category in db.Categories.Where(c => c.Enabled))
-                {
-                    Categories.Add(category.Name, category.Code);
-                }
-                ViewBag.categoriesExist = Categories.Count > 0 ? true : false;
-                ViewBag.categories = Categories;
+
+                var categories = db.Categories.Where(c => c.Enabled)
+                    .ToDictionary(c => c.Name, c => c.Code);
+                ViewBag.categoriesExist = categories.Any();
+                ViewBag.categories = categories;
             }
 
             return View(model);
         }
-
         [Route("/Error/{code:int}")]
         public IActionResult Error(int code)
         {
-            var model = new BaseViewModel("Shop");
+            var model = new ErrorViewModel
+            {
+                ErrorCode = code,
+                AboutError = code == 404
+                    ? "Sorry, but the page with the given address does not exist"
+                    : "An unexpected error occurred."
+            };
+
             if (User.Identity.IsAuthenticated)
             {
                 using (var db = new ShopDatabase())
                 {
-                    var user = (from c in db.Users
-                                where c.Email == User.Identity.Name
-                                select c).FirstOrDefault();
-                    model.User.Name = user.Name;
-                    model.User.Surname = user.Surname;
-                    model.User.Email = user.Email;
+                    var user = db.Users.FirstOrDefault(c => c.Email == User.Identity.Name);
+                    if (user != null)
+                    {
+                        model.User.Name = user.Name;
+                        model.User.Surname = user.Surname;
+                        model.User.Email = user.Email;
+                    }
                 }
             }
-            ViewData["errorCode"] = code;
-            ViewData["aboutError"] = "";
-            if(code == 404)
-            {
-                ViewData["aboutError"] = "Sorry, but the page with the given address does not exist";
-            }
-            model.Title = "An error occurred";
+
             return View(model);
         }
+
+        //[Route("/Error/{code:int}")]
+        //public IActionResult Error(int code)
+        //{
+        //    var model = new BaseViewModel("Shop");
+        //    if (User.Identity.IsAuthenticated)
+        //    {
+        //        using (var db = new ShopDatabase())
+        //        {
+        //            var user = (from c in db.Users
+        //                        where c.Email == User.Identity.Name
+        //                        select c).FirstOrDefault();
+        //            model.User.Name = user.Name;
+        //            model.User.Surname = user.Surname;
+        //            model.User.Email = user.Email;
+        //        }
+        //    }
+        //    ViewData["errorCode"] = code;
+        //    ViewData["aboutError"] = "";
+        //    if (code == 404)
+        //    {
+        //        ViewData["aboutError"] = "Sorry, but the page with the given address does not exist";
+        //    }
+        //    model.Title = "An error occurred";
+        //    return View(model);
+        //}
     }
 }

@@ -1,8 +1,20 @@
-﻿@{
+﻿@* @{
     Layout = "_Layout";
 }
 
 <div style="margin-top:35vh; text-align:center">
     <h2 class="text-primary">@ViewData["aboutError"]</h2>
     <h4 class="text-info">Error code @ViewData["errorCode"]</h4>
+</div>
+ *@
+ @model ShopWebApp.ErrorViewModel
+
+@{
+    Layout = "_Layout";
+}
+
+<div style="margin-top:35vh; text-align:center">
+    <h2 class="text-primary">@Model.AboutError</h2>
+    <h4 class="text-info">Error code @Model.ErrorCode</h4>
+    <a href="/" class="btn btn-outline-primary">Return to Shop</a>
 </div>

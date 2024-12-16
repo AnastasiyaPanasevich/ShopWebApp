@@ -11,6 +11,12 @@ namespace ShopWebApp.Controllers
 {
     public class OrderController : Controller
     {
+        private readonly ShopDatabase _db;
+
+        public OrderController(ShopDatabase db)
+        {
+            _db = db;
+        }
         public IActionResult Index(OrderModel input)
         {
             if (string.IsNullOrEmpty(HttpContext.Session.GetString("_Cart")))
